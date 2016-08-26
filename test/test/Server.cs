@@ -10,13 +10,49 @@ namespace Fingerprint
 	public class Server
 	{
 		public string url = "http://localhost:8888/indoor";
-		public void uploadFingerprint(FingerPrintData data)
+		public bool uploadFingerprint(FingerPrintData data)
 		{
 			if(data != null)
 			{
 				string dataStr = data.ToString();
-				string result = sendPostData(url + "/index.php", dataStr);
+				string result = sendPostData(url + "/uploadFingerprint.php", dataStr);
+				Dictionary<string, Object> obj = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize <Dictionary<string, Object>>(result);
+				if (obj != null && obj.Keys.Count == 2)
+				{
+					if ((obj["InsertRouter"] is bool) && (obj["InsertData"] is bool))
+					{
+						if ((bool)obj["InsertRouter"] && (bool)obj["InsertData"])
+						{
+							return true;
+						}
+					}
+					return false;
+				}
+				else
+				{
+					return false;
+				}
 			}
+			return true;
+		}
+		public Vector getPosition(FingerPrintData data)
+		{
+			if (data != null)
+			{
+				string dataStr = data.ToString();
+				string result = sendPostData(url + "/queryPosition.php", dataStr);
+				try
+				{
+					PosData ll = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<PosData>(result);
+					Vector v = Vector.fromLL(ll.lat, ll.lon, ll.y);
+					return v;
+				}
+				catch (System.Exception ex)
+				{
+					
+				}
+			}
+			return null;
 		}
 		string sendPostData(string url, string data)
 		{
@@ -37,5 +73,12 @@ namespace Fingerprint
 			}
 			return result;
 		}
+	}
+	public class PosData
+	{
+		public double lat;
+		public double lon;
+		public double y;
+		public double accuracy;
 	}
 }

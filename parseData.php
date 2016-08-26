@@ -1,10 +1,10 @@
 <?php 
 require("db.php");
 require("nn/nn.php");
-$gridW = 50;
-$gridH = 50;
 function parse($jsonFP)
 {
+	$gridW = 50;
+	$gridH = 50;
 	$num = count($jsonFP);
 	$queryInsertData = "INSERT INTO `data` (`id`, `mac`, `rssi`, `lat`, `lon`, `ll_ref`) VALUES ";
 	$queryInsertRouter = "INSERT INTO `routers` (`ll_ref`, `mac`, `model`) VALUES ";
@@ -16,12 +16,12 @@ function parse($jsonFP)
 		$foundMac = getMacList($llref, $db);
 		if($cnt != 0)
 		{
-			$queryInsertData = $queryInsertData . ", (" . $db->quote($fp->sampleID). "," . $db->quote($fp->mac) . "," . $db->quote($fp->fp) . "," . $db->quote($fp->lat) . "," . $db->quote($fp->lon) . "," . $db->quote($ll_ref) . ")";
+			$queryInsertData = $queryInsertData . ", (" . $db->quote($fp->sampleID). "," . $db->quote($fp->mac) . "," . $db->quote($fp->rssi) . "," . $db->quote($fp->lat) . "," . $db->quote($fp->lon) . "," . $db->quote($llref) . ")";
 			$queryInsertRouter = $queryInsertRouter . ", (" . $db->quote($llref) . "," . $db->quote($fp->mac) . "," . $db->quote($fp->model) . ")";
 		}
 		else
 		{
-			$queryInsertData = $queryInsertData . "(" . $db->quote($fp->sampleID). "," . $db->quote($fp->mac) . "," . $db->quote($fp->fp) . "," . $db->quote($fp->lat) . "," . $db->quote($fp->lon) . "," . $db->quote($ll_ref) . ")";
+			$queryInsertData = $queryInsertData . "(" . $db->quote($fp->sampleID). "," . $db->quote($fp->mac) . "," . $db->quote($fp->rssi) . "," . $db->quote($fp->lat) . "," . $db->quote($fp->lon) . "," . $db->quote($llref) . ")";
 			$queryInsertRouter = $queryInsertRouter . "(" . $db->quote($llref) . "," . $db->quote($fp->mac) . "," . $db->quote($fp->model) . ")";
 		}
 		$cnt = $cnt + 1;
@@ -32,20 +32,19 @@ function parse($jsonFP)
 		$result1 = $db->query($queryInsertData);
 		if($result1 == false)
 		{
-			echo "<br> error result1";
 			$result1 = $db->error();
 		}
 		$result2 = $db->query($queryInsertRouter);
 		if($result2 == false)
 		{
-			echo "<br> error result2";
 			$result2 = $db->error();
 		}
-		echo "<br> result1<br>";
-		var_dump($result1);
-		echo "<br> result2<br>";
-		var_dump($result2);
 	}
+
+	$result = array();
+	$result["InsertRouter"] = $result1;
+	$result["InsertData"] = $result2;
+	return $result;
 }
 function getMacList($ll_ref, $db)
 {
@@ -53,8 +52,9 @@ function getMacList($ll_ref, $db)
 	$result = $db->select($queryFindMac);
 	return $result;
 }
-function getPosition($jsonFP, $db)
+function getPosition($jsonFP)
 {
+	$db = new Db();
 	$llrefLst = array();
 	foreach($jsonFP as $fp)
 	{
@@ -97,7 +97,13 @@ function getPosition($jsonFP, $db)
 	{
 		$finalPos[$i] /= $occuranceCnt;
 	}
-	return $finalPos;
+	$accuracy = 1;
+	$result = array();
+	$result["lat"] = $finalPos[0];
+	$result["lon"] = $finalPos[1]; 
+	$result["y"] = $finalPos[2];
+	$result["accuracy"] = $accuracy;
+	return $result;
 }
 function getLLRef($lat, $lon, $gridW, $gridH)
 {

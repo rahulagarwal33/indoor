@@ -442,6 +442,20 @@ class NeuralNetwork {
 	}
 
 	/**
+	 * Perform a single train step
+	 */
+	public function trainStep($input, $desiredOutput)
+	{
+		if (!$this->weightsInitialized)
+		{
+			$this->initWeights();
+			$this->weightsInitialized = true;
+		}
+		$output = $this->calculate($input);
+		$this->backpropagate($output, $desiredOutput);
+	}
+
+	/**
 	 * Start the training process
 	 * 
 	 * @param int $maxEpochs The maximum number of epochs
@@ -669,9 +683,36 @@ class NeuralNetwork {
 	}
 
 	/**
+	 * Modify layer size
+	 */
+	public function modifyLayerSize($layer, $nodeCnt)
+	{
+		if($this->nodeCount[$layer] != $nodeCnt)
+		{
+			$this->nodeCount[$layer] = $nodeCnt;
+			array_pad($this->nodeValue[$layer], $nodeCnt, 0);
+			if($layer > 0)
+				array_pad($this->nodeThreshold[$layer], $nodeCnt, 0);
+			return true;
+/*			
+			
+			if($layer > 0)
+			{
+				
+				$prev_layer = $layer -1;
+				for ($prev_index = 0; $prev_index < $this->nodeCount[$prev_layer]; $prev_index ++)
+				{
+					array_pad($this->edgeWeight[$prev_layer][$prev_index], $nodeCnt, 0);
+				}
+			}
+			*/
+		}
+		return false;
+	}
+	/**
 	 * Randomise the weights in the neural network
 	 */
-	private function initWeights() {
+	public function initWeights($setIfNotPresent = false) {
 		// assign a random value to each edge between the layers, and randomise each threshold
 		//
 		// 1. start at layer '1' (so skip the input layer)
@@ -682,17 +723,25 @@ class NeuralNetwork {
 			// 2. in this layer, walk each node
 			for ($node = 0; $node < $this->nodeCount[$layer]; $node ++) {
 
-				// 3. randomise this node's threshold
-				$this->nodeThreshold[$layer][$node] = $this->getRandomWeight($layer);
+				if((!$setIfNotPresent) || ($setIfNotPresent && !isset($this->nodeThreshold[$layer][$node])))
+				{
+					// 3. randomise this node's threshold
+					$this->nodeThreshold[$layer][$node] = $this->getRandomWeight($layer);
+				}
 
 				// 4. this node is connected to each node of the previous layer
 				for ($prev_index = 0; $prev_index < $this->nodeCount[$prev_layer]; $prev_index ++) {
+					if((!$setIfNotPresent) || ($setIfNotPresent && !isset($this->edgeWeight[$prev_layer][$prev_index][$node])))
+					{
+						// 5. this is the 'edge' that needs to be reset / initialised
+						$this->edgeWeight[$prev_layer][$prev_index][$node] = $this->getRandomWeight($prev_layer);
+					}
 
-					// 5. this is the 'edge' that needs to be reset / initialised
-					$this->edgeWeight[$prev_layer][$prev_index][$node] = $this->getRandomWeight($prev_layer);
-
-					// 6. initialize the 'previous weightcorrection' at 0.0
-					$this->previousWeightCorrection[$prev_layer][$prev_index] = 0.0;
+					if((!$setIfNotPresent) || ($setIfNotPresent && !isset($this->previousWeightCorrection[$prev_layer][$prev_index])))
+					{
+						// 6. initialize the 'previous weightcorrection' at 0.0
+						$this->previousWeightCorrection[$prev_layer][$prev_index] = 0.0;
+					}
 				}
 			}
 		}
@@ -821,7 +870,7 @@ class NeuralNetwork {
 	 * @param array $desired_output The desired output
 	 * @return float The root-mean-squared error of the output compared to the desired output
 	 */
-	private function squaredError($input, $desired_output) {
+	public function squaredError($input, $desired_output) {
 		$output = $this->calculate($input);
 
 		$RMSerror = 0.0;

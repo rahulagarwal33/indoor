@@ -9,7 +9,7 @@ namespace Fingerprint
 {
 	public class RandomData
 	{
-		Random rand = new Random();
+		Random rand = new Random(unchecked((int) (DateTime.Now.Ticks)));
 		HashSet<string> createdMac = new HashSet<string>();
 		List<string> modelList = new List<string>();
 		string generateNextMac()
@@ -42,7 +42,7 @@ namespace Fingerprint
 		}
 		double nextMaxRadius()
 		{
-			return 30 + 10 * rand.NextDouble();
+			return 20 + 10 * rand.NextDouble();
 		}
 		double nextMinRSSI()
 		{
@@ -69,6 +69,7 @@ namespace Fingerprint
 			XmlDocument xmlDoc = new XmlDocument();
 			XmlElement routersElem = xmlDoc.CreateElement("Routers");
 			xmlDoc.AppendChild(routersElem);
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("StartSampleIndex"); attrib.Value = "0"; routersElem.Attributes.Append(attrib); }
 			initModelList();
 			for (int i = 0; i < numRouter; ++i)
 			{

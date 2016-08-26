@@ -28,6 +28,17 @@ namespace Fingerprint
 			model = routerData.Attributes["Model"].Value;
 			this.maze = m;
 		}
+		public XmlNode save(XmlDocument xmlDoc)
+		{
+			XmlNode routerElem = xmlDoc.CreateElement("Router");
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("MAC"); attrib.Value = mac; routerElem.Attributes.Append(attrib); }
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("Model"); attrib.Value = model; routerElem.Attributes.Append(attrib); }
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("MaxRadius"); attrib.Value = maxRadius.ToString(); routerElem.Attributes.Append(attrib); }
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("MinRSSI"); attrib.Value = minRSSI.ToString(); routerElem.Attributes.Append(attrib); }
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("MaxRSSI"); attrib.Value = maxRSSI.ToString(); routerElem.Attributes.Append(attrib); }
+			{ XmlAttribute attrib = xmlDoc.CreateAttribute("Position"); attrib.Value = pos.ToString(); routerElem.Attributes.Append(attrib); }
+			return routerElem;
+		}
 		public double RSSI(Vector to)
 		{
 			Vector distVec = maze.distance(to, pos);
@@ -38,7 +49,7 @@ namespace Fingerprint
 			}
 			else
 			{
-				double rssi = (maxRSSI + (maxRSSI - minRSSI) / (maxRadius) * dist) + 5 * maze.rand.NextDouble();
+				double rssi = (maxRSSI + (minRSSI - maxRSSI) / (maxRadius) * dist) + 5 * maze.rand.NextDouble();
 				return rssi;
 			}
 		}

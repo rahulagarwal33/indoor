@@ -31,6 +31,17 @@ namespace Fingerprint
 				z = Double.Parse(l[2]);
 			}
 		}
+		public void converPosToLL(out double lat, out double lon)
+		{
+			lon = x / 1852.3 / 60;
+			lat = z / 1852.3 / 60;
+		}
+		public static Vector fromLL(double lat, double lon, double y)
+		{
+			Vector v = new Vector(lon * 60 * 1852.3, y, lat * 60 * 1852.3);
+			return v;
+		}
+
 		public static Vector operator -(Vector lhs, Vector rhs)
 		{
 			Vector v = new Vector(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
@@ -41,7 +52,7 @@ namespace Fingerprint
 			Vector v = new Vector(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
 			return v;
 		}
-		public string ToString()
+		public override string ToString()
 		{
 			string s = x.ToString() + "," + y.ToString() + "," + z.ToString();
 			return s;

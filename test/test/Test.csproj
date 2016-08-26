@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RandomData.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="TestForm.cs">
       <SubType>Form</SubType>
     </Compile>
