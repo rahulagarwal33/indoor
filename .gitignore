@@ -2,3 +2,5 @@ test/test/obj
 test/test/bin
 !test/test/bin/debug/data.xml
 test/test.v11.suo
+test/test.suo
+db.ini

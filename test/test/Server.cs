@@ -17,11 +17,11 @@ namespace Fingerprint
 				string dataStr = data.ToString();
 				string result = sendPostData(url + "/uploadFingerprint.php", dataStr);
 				Dictionary<string, Object> obj = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize <Dictionary<string, Object>>(result);
-				if (obj != null && obj.Keys.Count == 2)
+				if (obj != null && obj.Keys.Count == 3)
 				{
-					if ((obj["InsertRouter"] is bool) && (obj["InsertData"] is bool))
+					if ((obj["InsertRouter"] is bool) && (obj["InsertData"] is bool) && (obj["InsertLLRef"]) is bool)
 					{
-						if ((bool)obj["InsertRouter"] && (bool)obj["InsertData"])
+						if ((bool)obj["InsertRouter"] && (bool)obj["InsertData"] && (bool)obj["InsertLLRef"])
 						{
 							return true;
 						}
@@ -44,7 +44,7 @@ namespace Fingerprint
 				try
 				{
 					PosData ll = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<PosData>(result);
-					Vector v = Vector.fromLL(ll.lat, ll.lon, ll.y);
+					Vector v = Vector.fromLL(ll.lat, ll.y, ll.lon);
 					return v;
 				}
 				catch (System.Exception ex)

@@ -52,15 +52,16 @@
 			this.picBox.Size = new System.Drawing.Size(630, 515);
 			this.picBox.TabIndex = 0;
 			this.picBox.TabStop = false;
+			this.picBox.Click += new System.EventHandler(this.picBox_Click);
 			this.picBox.Paint += new System.Windows.Forms.PaintEventHandler(this.picBox_Paint);
 			// 
-			// Form1
+			// TestForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(630, 515);
 			this.Controls.Add(this.panel1);
-			this.Name = "Form1";
+			this.Name = "TestForm";
 			this.Text = "Form1";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);

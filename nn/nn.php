@@ -4,9 +4,30 @@ class NNLoader
 {
 	protected $nn;
 	protected $macList;
-	public function getPosition($jsonFP)
+	public function getPosition($latId, $lonId, $jsonFP)
 	{
-		return array_fill(0, 3, 0);
+		$input = $this->convertFPToSample($jsonFP);
+		$output = $this->nn->calculate($input);
+		$gridW = 50;
+		$gridH = 50;
+		$result[0] = ($latId + $output[0]) * $gridH / (60 * 1852.3);
+		$result[1] = 0;
+		$result[2] = ($lonId + $output[1]) * $gridW / (60 * 1852.3);
+		return $result;
+	}
+	function convertFPToSample($jsonFP)
+	{
+		$input = array_fill(0, count($this->macList), 0);
+		foreach($jsonFP as $fp)
+		{
+			if(isset($this->macList[$fp->mac]))
+				$input[$this->macList[$fp->mac]] = $this->normalizeRSSI($fp->rssi);
+			else
+			{
+				//mac is not registered
+			}
+		}
+		return $input;
 	}
 	public function extractIO($sample)
 	{

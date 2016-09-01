@@ -36,7 +36,7 @@ namespace Fingerprint
 			lon = x / 1852.3 / 60;
 			lat = z / 1852.3 / 60;
 		}
-		public static Vector fromLL(double lat, double lon, double y)
+		public static Vector fromLL(double lat, double y, double lon)
 		{
 			Vector v = new Vector(lon * 60 * 1852.3, y, lat * 60 * 1852.3);
 			return v;

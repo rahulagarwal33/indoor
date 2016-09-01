@@ -15,6 +15,9 @@ namespace Fingerprint
 {
 	public partial class TestForm : Form
 	{
+		Vector queryPoint = new Vector(0, 0, 0);
+		Vector returnPoint = new Vector(0, 0, 0);
+
 		Maze maze = new Maze();
 		Server server = new Server();
 		public static int sampleID = 0;
@@ -95,6 +98,10 @@ namespace Fingerprint
 			float offsetY = marginY / 2;
 			e.Graphics.TranslateTransform(offsetX, offsetY);
 			e.Graphics.ScaleTransform(scaleX, scaleY);
+			Pen p = new Pen(Color.Green, 0.01f);
+			e.Graphics.DrawRectangle(p, (int)queryPoint.x - 1, (int)queryPoint.z - 1, 2, 2);
+			Pen p1 = new Pen(Color.Red, 0.01f);
+			e.Graphics.DrawRectangle(p1, (int)returnPoint.x - 1, (int)returnPoint.z - 1, 2, 2);
 			maze.draw(e.Graphics);
 		}
 
@@ -103,6 +110,34 @@ namespace Fingerprint
 			bExit = true;
 			allDone.WaitOne();
 			maze.saveRouters("data.xml");
+		}
+
+		private void picBox_Click(object sender, EventArgs e)
+		{
+			Size sz = picBox.Size;
+			Size mazeSize = maze.size();
+			float marginX = 50;
+			float marginY = 50;
+			float scaleX = (float)((sz.Width - marginX) * 1.0 / mazeSize.Width);
+			float scaleY = (float)((sz.Height - marginY) * 1.0 / mazeSize.Height);
+			SizeF szFinal = new SizeF((float)sz.Width - marginX, (float)sz.Height - marginY);
+			float offsetX = marginX / 2;
+			float offsetY = marginY / 2;
+			float x = (float)((MouseEventArgs)e).X;
+			float y = (float)((MouseEventArgs)e).Y;
+
+			//convert these to maze point
+			x -= offsetX;
+			y -= offsetY;
+			x /= scaleX;
+			y /= scaleY;
+		
+			Vector v = new Vector(x, 0, y);
+			queryPoint = v;
+			FingerPrintData data = maze.generateNextFingerprint(v);
+			Vector pos = server.getPosition(data);
+			returnPoint = pos;
+			picBox.Invalidate();
 		}
 
 	}
